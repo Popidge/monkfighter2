@@ -8,8 +8,12 @@ local SPEC_WINDWALKER = 269
 local SOUND_CHANNEL = "SFX"
 local COMBO_RESET_TEXT = "Combo Broken!"
 local COMBO_BREAKER_SOUND = "combo_breaker.ogg"
+local COMBO_BREAKER_VISUAL_DURATION = 1.6
 local COMBO_TRACKER_AURA_ID = 1249753
 local FONT_PATH = "Fonts\\FRIZQT__.TTF"
+local WHITE_TEXTURE = "Interface\\Buttons\\WHITE8X8"
+local PREVIEW_SPELL_ID = 100780
+local PREVIEW_COMBO_COUNT = 7
 local DEFAULT_FRAME_POINT = {
     point = "CENTER",
     relativePoint = "CENTER",
@@ -103,6 +107,228 @@ local exclamations = {
     { count = 1, text = "" },
 }
 
+local COMBO_STYLES = {
+    default = {
+        name = "Default",
+        frameWidth = 268,
+        frameHeight = 92,
+        countSizeOffset = 0,
+        iconSize = 48,
+        iconPoint = { "LEFT", "self", "LEFT", 8, 0 },
+        iconBorderColor = { 1, 1, 1, 0.14 },
+        backgroundColor = { 0, 0, 0, 0 },
+        edgeColor = { 0, 0, 0, 0 },
+        labelText = "COMBO",
+        labelSize = 13,
+        labelColor = { 0.95, 0.82, 0.38 },
+        labelPoint = { "BOTTOMLEFT", "icon", "TOPLEFT", 0, 2 },
+        countColor = { 1, 0.92, 0.42 },
+        countBrokenColor = { 1, 0.32, 0.32 },
+        countPoint = { "LEFT", "icon", "RIGHT", 10, 8 },
+        countShadowColor = { 0, 0, 0, 0.9 },
+        countShadowOffset = { 2, -2 },
+        exclamationSize = 16,
+        exclamationColor = { 1, 0.96, 0.72 },
+        exclamationBrokenColor = { 1, 0.42, 0.42 },
+        exclamationPoint = { "TOPLEFT", "count", "BOTTOMLEFT", 0, -1 },
+        exclamationPoint2 = { "RIGHT", "self", "RIGHT", -8, 0 },
+        exclamationJustify = "LEFT",
+        moveHintColor = { 0.96, 0.71, 0.15 },
+        breakerTextColor = { 1, 0.96, 0.96 },
+        breakerShadowColor = { 0.82, 0.08, 0.08, 0.95 },
+        breakerSlashColor = { 0.82, 0.08, 0.08, 0.72 },
+        breakerTextPoint = { "CENTER", "self", "CENTER", 0, -4 },
+        breakerSlashAPoint = { "CENTER", "self", "CENTER", 8, 2 },
+        breakerSlashASize = { 220, 6 },
+        breakerSlashBPoint = { "CENTER", "self", "CENTER", 26, 12 },
+        breakerSlashBSize = { 150, 3 },
+    },
+    sf2 = {
+        name = "Street Fighter II",
+        frameWidth = 348,
+        frameHeight = 94,
+        countSizeOffset = 6,
+        iconSize = 38,
+        iconPoint = { "LEFT", "self", "LEFT", 8, -2 },
+        iconBorderColor = { 1, 0.84, 0.28, 0.34 },
+        backgroundColor = { 0, 0, 0, 0 },
+        edgeColor = { 0, 0, 0, 0 },
+        labelText = "HIT COMBO",
+        labelSize = 24,
+        labelColor = { 0.98, 0.62, 0.12 },
+        labelPoint = { "LEFT", "count", "RIGHT", 8, 5 },
+        countColor = { 0.2, 0.74, 1 },
+        countBrokenColor = { 1, 0.28, 0.28 },
+        countPoint = { "TOPLEFT", "icon", "TOPRIGHT", 10, 6 },
+        countShadowColor = { 0.86, 0.08, 0.14, 0.96 },
+        countShadowOffset = { 3, -3 },
+        exclamationSize = 20,
+        exclamationColor = { 1, 0.34, 0.34 },
+        exclamationBrokenColor = { 1, 0.85, 0.3 },
+        exclamationPoint = { "TOPLEFT", "count", "BOTTOMLEFT", 0, -1 },
+        exclamationPoint2 = { "RIGHT", "self", "RIGHT", -10, 0 },
+        exclamationJustify = "LEFT",
+        moveHintColor = { 1, 0.74, 0.18 },
+        breakerTextColor = { 1, 0.97, 0.82 },
+        breakerShadowColor = { 0.86, 0.08, 0.14, 0.98 },
+        breakerSlashColor = { 0.86, 0.08, 0.14, 0.76 },
+        breakerTextPoint = { "CENTER", "self", "CENTER", 0, -4 },
+        breakerSlashAPoint = { "CENTER", "self", "CENTER", 14, 2 },
+        breakerSlashASize = { 236, 6 },
+        breakerSlashBPoint = { "CENTER", "self", "CENTER", 30, 12 },
+        breakerSlashBSize = { 166, 3 },
+    },
+    sf3 = {
+        name = "Street Fighter III",
+        frameWidth = 344,
+        frameHeight = 92,
+        countSizeOffset = 4,
+        iconSize = 38,
+        iconPoint = { "LEFT", "self", "LEFT", 8, -2 },
+        iconBorderColor = { 0.98, 0.64, 0.16, 0.3 },
+        backgroundColor = { 0, 0, 0, 0 },
+        edgeColor = { 0, 0, 0, 0 },
+        labelText = "HIT COMBO",
+        labelSize = 24,
+        labelColor = { 0.97, 0.56, 0.1 },
+        labelPoint = { "LEFT", "count", "RIGHT", 8, 4 },
+        countColor = { 0.12, 0.92, 0.82 },
+        countBrokenColor = { 1, 0.34, 0.34 },
+        countPoint = { "TOPLEFT", "icon", "TOPRIGHT", 10, 5 },
+        countShadowColor = { 0, 0, 0, 0.96 },
+        countShadowOffset = { 2, -2 },
+        exclamationSize = 19,
+        exclamationColor = { 0.34, 0.96, 0.86 },
+        exclamationBrokenColor = { 1, 0.72, 0.28 },
+        exclamationPoint = { "TOPLEFT", "count", "BOTTOMLEFT", 0, -2 },
+        exclamationPoint2 = { "RIGHT", "self", "RIGHT", -10, 0 },
+        exclamationJustify = "LEFT",
+        moveHintColor = { 0.97, 0.56, 0.1 },
+        breakerTextColor = { 1, 0.96, 0.9 },
+        breakerShadowColor = { 0.84, 0.18, 0.08, 0.96 },
+        breakerSlashColor = { 0.84, 0.18, 0.08, 0.74 },
+        breakerTextPoint = { "CENTER", "self", "CENTER", 0, -4 },
+        breakerSlashAPoint = { "CENTER", "self", "CENTER", 14, 2 },
+        breakerSlashASize = { 230, 6 },
+        breakerSlashBPoint = { "CENTER", "self", "CENTER", 28, 11 },
+        breakerSlashBSize = { 160, 3 },
+    },
+    sf4 = {
+        name = "Street Fighter IV",
+        frameWidth = 340,
+        frameHeight = 90,
+        countSizeOffset = 2,
+        iconSize = 34,
+        iconPoint = { "LEFT", "self", "LEFT", 8, -2 },
+        iconBorderColor = { 0.7, 0.86, 1, 0.3 },
+        backgroundColor = { 0, 0, 0, 0 },
+        edgeColor = { 0, 0, 0, 0 },
+        labelText = "HIT COMBO",
+        labelSize = 23,
+        labelColor = { 0.98, 0.98, 1 },
+        labelPoint = { "LEFT", "count", "RIGHT", 8, 4 },
+        countColor = { 0.95, 0.98, 1 },
+        countBrokenColor = { 1, 0.42, 0.42 },
+        countPoint = { "TOPLEFT", "icon", "TOPRIGHT", 10, 5 },
+        countShadowColor = { 0.22, 0.24, 0.28, 0.98 },
+        countShadowOffset = { 2, -2 },
+        exclamationSize = 20,
+        exclamationColor = { 0.3, 0.9, 1 },
+        exclamationBrokenColor = { 1, 0.78, 0.3 },
+        exclamationPoint = { "TOPLEFT", "count", "BOTTOMLEFT", 0, -2 },
+        exclamationPoint2 = { "RIGHT", "self", "RIGHT", -10, 0 },
+        exclamationJustify = "LEFT",
+        moveHintColor = { 0.72, 0.88, 1 },
+        breakerTextColor = { 1, 1, 1 },
+        breakerShadowColor = { 0.26, 0.62, 0.9, 0.9 },
+        breakerSlashColor = { 0.2, 0.72, 0.96, 0.5 },
+        breakerTextPoint = { "CENTER", "self", "CENTER", 0, -4 },
+        breakerSlashAPoint = { "CENTER", "self", "CENTER", 14, 2 },
+        breakerSlashASize = { 224, 6 },
+        breakerSlashBPoint = { "CENTER", "self", "CENTER", 28, 11 },
+        breakerSlashBSize = { 156, 3 },
+    },
+    mvc3 = {
+        name = "Marvel vs. Capcom 3",
+        frameWidth = 334,
+        frameHeight = 102,
+        countSizeOffset = 12,
+        iconSize = 34,
+        iconPoint = { "RIGHT", "self", "RIGHT", -8, 0 },
+        iconBorderColor = { 1, 0.85, 0.2, 0.4 },
+        backgroundColor = { 0, 0, 0, 0 },
+        edgeColor = { 0, 0, 0, 0 },
+        labelText = "",
+        labelSize = 14,
+        labelColor = { 1, 1, 1 },
+        labelPoint = { "TOPLEFT", "self", "TOPLEFT", 10, -10 },
+        countColor = { 1, 0.78, 0.14 },
+        countBrokenColor = { 1, 0.24, 0.24 },
+        countPoint = { "LEFT", "self", "LEFT", 10, 0 },
+        countShadowColor = { 0.88, 0.1, 0.1, 0.98 },
+        countShadowOffset = { 4, -4 },
+        suffixText = "HITS!",
+        suffixSize = 23,
+        suffixColor = { 1, 0.86, 0.24 },
+        suffixPoint = { "LEFT", "count", "RIGHT", 8, -2 },
+        suffixShadowColor = { 0.72, 0.14, 0.08, 0.96 },
+        suffixShadowOffset = { 2, -2 },
+        exclamationSize = 18,
+        exclamationColor = { 1, 0.96, 0.82 },
+        exclamationBrokenColor = { 1, 0.44, 0.44 },
+        exclamationPoint = { "TOPLEFT", "count", "BOTTOMLEFT", 4, -2 },
+        exclamationPoint2 = { "RIGHT", "icon", "LEFT", -10, 0 },
+        exclamationJustify = "LEFT",
+        moveHintColor = { 1, 0.82, 0.18 },
+        breakerTextColor = { 1, 0.98, 0.9 },
+        breakerShadowColor = { 0.92, 0.1, 0.1, 0.96 },
+        breakerSlashColor = { 0.92, 0.1, 0.1, 0.78 },
+    },
+    ki = {
+        name = "Killer Instinct",
+        frameWidth = 320,
+        frameHeight = 104,
+        countSizeOffset = 8,
+        iconSize = 34,
+        iconPoint = { "LEFT", "self", "LEFT", 8, -4 },
+        iconBorderColor = { 0.92, 0.18, 0.18, 0.38 },
+        backgroundColor = { 0.03, 0.03, 0.03, 0.18 },
+        edgeColor = { 0.7, 0.04, 0.04, 0.56 },
+        labelText = "COMBO",
+        labelSize = 18,
+        labelColor = { 0.96, 0.96, 0.96 },
+        labelPoint = { "TOPLEFT", "self", "TOPLEFT", 54, -10 },
+        countColor = { 1, 1, 1 },
+        countBrokenColor = { 1, 0.44, 0.44 },
+        countPoint = { "TOPLEFT", "label", "BOTTOMLEFT", 24, -6 },
+        countShadowColor = { 0.76, 0.08, 0.08, 0.98 },
+        countShadowOffset = { 3, -3 },
+        suffixText = "HITS",
+        suffixSize = 16,
+        suffixColor = { 1, 1, 1 },
+        suffixPoint = { "LEFT", "count", "RIGHT", 8, -8 },
+        suffixShadowColor = { 0.76, 0.08, 0.08, 0.9 },
+        suffixShadowOffset = { 2, -2 },
+        exclamationSize = 18,
+        exclamationColor = { 1, 0.96, 0.56 },
+        exclamationBrokenColor = { 1, 0.46, 0.46 },
+        exclamationPoint = { "TOPLEFT", "count", "BOTTOMLEFT", -4, -2 },
+        exclamationPoint2 = { "RIGHT", "self", "RIGHT", -10, 0 },
+        exclamationJustify = "LEFT",
+        moveHintColor = { 1, 0.34, 0.34 },
+        breakerTextColor = { 1, 1, 1 },
+        breakerShadowColor = { 0.88, 0.08, 0.08, 0.98 },
+        breakerSlashColor = { 0.88, 0.08, 0.08, 0.84 },
+        breakerTextPoint = { "CENTER", "self", "CENTER", 0, -2 },
+        breakerSlashAPoint = { "CENTER", "self", "CENTER", 18, 4 },
+        breakerSlashASize = { 250, 6 },
+        breakerSlashBPoint = { "CENTER", "self", "CENTER", 34, 14 },
+        breakerSlashBSize = { 176, 3 },
+    },
+}
+
+local COMBO_STYLE_ORDER = { "default", "sf2", "sf3", "sf4", "mvc3", "ki" }
+
 local defaults = {
     soundsEnabled = true,
     comboEnabled = true,
@@ -111,6 +337,8 @@ local defaults = {
     frameLocked = true,
     framePoint = DEFAULT_FRAME_POINT,
     soundMappings = {},
+    comboStyle = "default",
+    comboFontOverride = nil,
 }
 
 local state = {
@@ -123,6 +351,9 @@ local state = {
     lastAuraInstanceID = nil,
     lastAuraLabel = nil,
     lastComboAuraSummary = nil,
+    comboBreakerExpiresAt = nil,
+    previewMode = false,
+    refreshingOptions = false,
     eventSpellIndex = {},
     optionRows = {},
     optionsCategory = nil,
@@ -130,6 +361,50 @@ local state = {
 
 local comboFrame
 local optionsPanel
+local GetComboText
+local SetFrameLocked
+local RefreshOptionsPanel
+
+local function GetSharedMedia()
+    if not LibStub then
+        return nil
+    end
+
+    return LibStub("LibSharedMedia-3.0", true)
+end
+
+local function GetSharedMediaFontPath(fontName)
+    if not fontName or fontName == "" then
+        return nil
+    end
+
+    local media = GetSharedMedia()
+    if not media or not media.Fetch then
+        return nil
+    end
+
+    local ok, fontPath = pcall(media.Fetch, media, "font", fontName, true)
+    if ok and fontPath and fontPath ~= "" then
+        return fontPath
+    end
+
+    return nil
+end
+
+local function GetSharedMediaFontNames()
+    local media = GetSharedMedia()
+    if not media or not media.List then
+        return nil
+    end
+
+    local fontNames = media:List("font")
+    table.sort(fontNames)
+    return fontNames
+end
+
+local function GetOrderedComboStyleKeys()
+    return COMBO_STYLE_ORDER
+end
 
 local function GetTimeSafe()
     if GetTime then
@@ -185,8 +460,16 @@ local function GetConfiguredSpellName(spellID)
 end
 
 local function GetSpellTextureSafe(spellID)
+    if not spellID then
+        return nil
+    end
+
     if C_Spell and C_Spell.GetSpellTexture then
-        return C_Spell.GetSpellTexture(spellID)
+        local ok, icon = pcall(C_Spell.GetSpellTexture, spellID)
+        if ok then
+            return icon
+        end
+        return nil
     end
 
     local _, _, icon = GetSpellInfo(spellID)
@@ -245,6 +528,128 @@ local function EnsureDB()
     if type(MonkFighter2DB.framePoint) ~= "table" then
         MonkFighter2DB.framePoint = CopyTable(DEFAULT_FRAME_POINT)
     end
+
+    if COMBO_STYLES[MonkFighter2DB.comboStyle] == nil then
+        MonkFighter2DB.comboStyle = "default"
+    end
+
+    if MonkFighter2DB.comboFontOverride ~= nil and MonkFighter2DB.comboFontOverride == "" then
+        MonkFighter2DB.comboFontOverride = nil
+    end
+end
+
+local function GetComboStyleDefinition()
+    return COMBO_STYLES[MonkFighter2DB.comboStyle] or COMBO_STYLES.default
+end
+
+local function ResolveRegionAnchor(anchorName)
+    if anchorName == "self" then
+        return comboFrame
+    end
+
+    return comboFrame and comboFrame[anchorName] or nil
+end
+
+local function SetRegionPoints(region, primaryPoint, secondaryPoint)
+    region:ClearAllPoints()
+
+    if primaryPoint then
+        region:SetPoint(
+            primaryPoint[1],
+            ResolveRegionAnchor(primaryPoint[2]),
+            primaryPoint[3],
+            primaryPoint[4],
+            primaryPoint[5]
+        )
+    end
+
+    if secondaryPoint then
+        region:SetPoint(
+            secondaryPoint[1],
+            ResolveRegionAnchor(secondaryPoint[2]),
+            secondaryPoint[3],
+            secondaryPoint[4],
+            secondaryPoint[5]
+        )
+    end
+end
+
+local function PointReferencesAnchor(point, anchorName)
+    return point and point[2] == anchorName
+end
+
+local function ApplyShadow(region, shadowColor, shadowOffset)
+    if shadowColor then
+        region:SetShadowColor(unpack(shadowColor))
+    else
+        region:SetShadowColor(0, 0, 0, 0)
+    end
+
+    if shadowOffset then
+        region:SetShadowOffset(shadowOffset[1], shadowOffset[2])
+    else
+        region:SetShadowOffset(0, 0)
+    end
+end
+
+local function SetTextureRotationSafe(textureRegion, radians)
+    if textureRegion and textureRegion.SetRotation then
+        textureRegion:SetRotation(radians)
+    end
+end
+
+local function GetComboFontPath()
+    return GetSharedMediaFontPath(MonkFighter2DB.comboFontOverride) or FONT_PATH
+end
+
+local function ApplyFont(region, size, flags, shadowColor, shadowOffset)
+    region:SetFont(GetComboFontPath(), size, flags or "OUTLINE")
+    ApplyShadow(region, shadowColor, shadowOffset)
+end
+
+local function GetStyleCountSize(style, comboCount)
+    return math.max(18, GetComboFontSize(comboCount) + (style.countSizeOffset or 0))
+end
+
+local function IsComboBreakerActive()
+    return state.comboBreakerExpiresAt and GetTimeSafe() < state.comboBreakerExpiresAt
+end
+
+local function GetDisplayComboCount()
+    if state.previewMode and state.comboCount == 0 then
+        return PREVIEW_COMBO_COUNT
+    end
+
+    return state.comboCount
+end
+
+local function GetDisplayExclamation()
+    if state.lastExclamation ~= "" then
+        return state.lastExclamation
+    end
+
+    if state.previewMode then
+        return GetComboText(GetDisplayComboCount())
+    end
+
+    return ""
+end
+
+local function GetDisplaySpellID(spellID)
+    return spellID or state.lastSpellID or (state.previewMode and PREVIEW_SPELL_ID) or nil
+end
+
+local function EnableComboPreview()
+    state.previewMode = true
+end
+
+local function ClearComboPreview()
+    state.previewMode = false
+end
+
+local function UnlockComboHUDForPreview()
+    EnableComboPreview()
+    SetFrameLocked(false)
 end
 
 local function BuildSoundPath(fileName)
@@ -286,7 +691,7 @@ local function GetMappedSoundFile(spellID)
     return config and config.defaultSound or nil
 end
 
-local function GetComboText(comboCount)
+GetComboText = function(comboCount)
     for _, entry in ipairs(exclamations) do
         if comboCount >= entry.count then
             return entry.text
@@ -431,9 +836,87 @@ local function UpdateFrameVisibility()
             now < state.comboDisplayExpiresAt
         )
     )
+    if not comboVisible and IsComboBreakerActive() then
+        comboVisible = true
+    end
+    if not comboVisible and state.previewMode then
+        comboVisible = true
+    end
+
     local shouldShow = state.isWindwalker and (not MonkFighter2DB.frameLocked or comboVisible)
     comboFrame:SetShown(shouldShow)
-    comboFrame.moveHint:SetShown(not MonkFighter2DB.frameLocked)
+    if comboFrame.moveHint then
+        comboFrame.moveHint:SetShown(not MonkFighter2DB.frameLocked)
+    end
+end
+
+local function ApplyComboTheme()
+    if not comboFrame then
+        return
+    end
+
+    local style = GetComboStyleDefinition()
+    comboFrame:SetSize(style.frameWidth, style.frameHeight)
+    comboFrame.bg:SetColorTexture(unpack(style.backgroundColor))
+    comboFrame.edgeTop:SetColorTexture(unpack(style.edgeColor))
+    comboFrame.icon:ClearAllPoints()
+    comboFrame.count:ClearAllPoints()
+    comboFrame.label:ClearAllPoints()
+    comboFrame.suffix:ClearAllPoints()
+    comboFrame.exclamation:ClearAllPoints()
+    comboFrame.icon:SetSize(style.iconSize, style.iconSize)
+    SetRegionPoints(comboFrame.icon, style.iconPoint)
+    comboFrame.iconBorder:SetPoint("TOPLEFT", comboFrame.icon, "TOPLEFT", -2, 2)
+    comboFrame.iconBorder:SetPoint("BOTTOMRIGHT", comboFrame.icon, "BOTTOMRIGHT", 2, -2)
+    comboFrame.iconBorder:SetColorTexture(unpack(style.iconBorderColor))
+
+    comboFrame.label:SetText(style.labelText or "")
+    comboFrame.label:SetShown((style.labelText or "") ~= "")
+    comboFrame.label:SetJustifyH("LEFT")
+    ApplyFont(comboFrame.label, style.labelSize or 14, "OUTLINE", style.countShadowColor, { 1, -1 })
+    comboFrame.label:SetTextColor(unpack(style.labelColor or { 1, 1, 1 }))
+
+    local countDependsOnLabel = PointReferencesAnchor(style.countPoint, "label")
+    local labelDependsOnCount = PointReferencesAnchor(style.labelPoint, "count")
+    if countDependsOnLabel and not labelDependsOnCount then
+        SetRegionPoints(comboFrame.label, style.labelPoint)
+        SetRegionPoints(comboFrame.count, style.countPoint)
+    else
+        SetRegionPoints(comboFrame.count, style.countPoint)
+        SetRegionPoints(comboFrame.label, style.labelPoint)
+    end
+
+    comboFrame.count:SetJustifyH("LEFT")
+    ApplyFont(comboFrame.count, GetStyleCountSize(style, math.max(1, GetDisplayComboCount())), "OUTLINE", style.countShadowColor, style.countShadowOffset)
+
+    comboFrame.suffix:SetText(style.suffixText or "")
+    comboFrame.suffix:SetShown((style.suffixText or "") ~= "")
+    if style.suffixText then
+        SetRegionPoints(comboFrame.suffix, style.suffixPoint)
+        comboFrame.suffix:SetJustifyH("LEFT")
+        ApplyFont(comboFrame.suffix, style.suffixSize or 16, "OUTLINE", style.suffixShadowColor, style.suffixShadowOffset)
+        comboFrame.suffix:SetTextColor(unpack(style.suffixColor or { 1, 1, 1 }))
+    end
+
+    SetRegionPoints(comboFrame.exclamation, style.exclamationPoint, style.exclamationPoint2)
+    comboFrame.exclamation:SetJustifyH(style.exclamationJustify or "LEFT")
+    ApplyFont(comboFrame.exclamation, style.exclamationSize or 16, "OUTLINE", style.countShadowColor, { 1, -1 })
+
+    comboFrame.moveHint:SetPoint("TOP", comboFrame, "TOP", 0, -10)
+    ApplyFont(comboFrame.moveHint, 11, "OUTLINE", nil, nil)
+    comboFrame.moveHint:SetTextColor(unpack(style.moveHintColor or { 1, 0.82, 0.25 }))
+
+    SetRegionPoints(comboFrame.breakerText, style.breakerTextPoint or { "CENTER", "self", "CENTER", 0, 0 })
+    ApplyFont(comboFrame.breakerText, math.floor((style.exclamationSize or 16) * 1.5), "OUTLINE", style.breakerShadowColor, { 2, -2 })
+    comboFrame.breakerText:SetTextColor(unpack(style.breakerTextColor or { 1, 1, 1 }))
+    comboFrame.breakerSlashA:ClearAllPoints()
+    comboFrame.breakerSlashB:ClearAllPoints()
+    comboFrame.breakerSlashA:SetSize(unpack(style.breakerSlashASize or { 180, 8 }))
+    comboFrame.breakerSlashB:SetSize(unpack(style.breakerSlashBSize or { 140, 4 }))
+    SetRegionPoints(comboFrame.breakerSlashA, style.breakerSlashAPoint or { "CENTER", "self", "CENTER", 0, -2 })
+    SetRegionPoints(comboFrame.breakerSlashB, style.breakerSlashBPoint or { "CENTER", "self", "CENTER", 14, 8 })
+    comboFrame.breakerSlashA:SetColorTexture(unpack(style.breakerSlashColor or { 0.9, 0.12, 0.12, 0.72 }))
+    comboFrame.breakerSlashB:SetColorTexture(unpack(style.breakerSlashColor or { 0.9, 0.12, 0.12, 0.72 }))
 end
 
 local function UpdateComboFrame(spellID, broken)
@@ -441,17 +924,28 @@ local function UpdateComboFrame(spellID, broken)
         return
     end
 
-    comboFrame.count:SetText(state.comboCount)
-    comboFrame.count:SetFont(FONT_PATH, GetComboFontSize(state.comboCount), "OUTLINE")
-    comboFrame.exclamation:SetText(state.lastExclamation)
-    comboFrame.icon:SetTexture(GetSpellTextureSafe(spellID) or 136097)
+    local style = GetComboStyleDefinition()
+    local displayComboCount = GetDisplayComboCount()
+    local displaySpellID = GetDisplaySpellID(spellID)
+    comboFrame.count:SetText(displayComboCount)
+    ApplyFont(comboFrame.count, GetStyleCountSize(style, math.max(1, displayComboCount)), "OUTLINE", style.countShadowColor, style.countShadowOffset)
+    comboFrame.exclamation:SetText(GetDisplayExclamation())
+    comboFrame.icon:SetTexture(GetSpellTextureSafe(displaySpellID) or 136097)
+    comboFrame.breakerText:SetShown(broken)
+    comboFrame.breakerSlashA:SetShown(broken)
+    comboFrame.breakerSlashB:SetShown(broken)
+    comboFrame.icon:SetShown(not broken)
+    comboFrame.iconBorder:SetShown(not broken)
+    comboFrame.count:SetShown(not broken)
+    comboFrame.label:SetShown(not broken and (style.labelText or "") ~= "")
+    comboFrame.suffix:SetShown(not broken and (style.suffixText or "") ~= "")
+    comboFrame.exclamation:SetShown(not broken)
 
     if broken then
-        comboFrame.count:SetTextColor(1, 0.25, 0.25)
-        comboFrame.exclamation:SetTextColor(1, 0.4, 0.4)
+        comboFrame.breakerText:SetText("COMBO BREAKER")
     else
-        comboFrame.count:SetTextColor(1, 0.92, 0.42)
-        comboFrame.exclamation:SetTextColor(1, 0.96, 0.72)
+        comboFrame.count:SetTextColor(unpack(style.countColor or { 1, 0.92, 0.42 }))
+        comboFrame.exclamation:SetTextColor(unpack(style.exclamationColor or { 1, 0.96, 0.72 }))
     end
 
     UpdateFrameVisibility()
@@ -462,14 +956,22 @@ local function ResetCombo()
     state.lastSpellID = nil
     state.lastExclamation = ""
     state.comboDisplayExpiresAt = nil
+    state.comboBreakerExpiresAt = nil
+    ClearComboPreview()
 
     if comboFrame then
         comboFrame.count:SetText("0")
-        comboFrame.count:SetFont(FONT_PATH, 34, "OUTLINE")
-        comboFrame.count:SetTextColor(1, 0.92, 0.42)
         comboFrame.exclamation:SetText("")
-        comboFrame.exclamation:SetTextColor(1, 0.96, 0.72)
         comboFrame.icon:SetTexture(136097)
+        comboFrame.breakerText:Hide()
+        comboFrame.breakerSlashA:Hide()
+        comboFrame.breakerSlashB:Hide()
+        comboFrame.icon:Show()
+        comboFrame.iconBorder:Show()
+        comboFrame.count:Show()
+        comboFrame.exclamation:Show()
+        ApplyComboTheme()
+        UpdateComboFrame(state.lastSpellID, false)
     end
 
     UpdateFrameVisibility()
@@ -505,19 +1007,42 @@ local function AdvanceCombo(spellID)
         return
     end
 
+    ClearComboPreview()
     local sameSpell = state.lastSpellID == spellID
     if sameSpell then
         state.comboCount = 0
         state.lastExclamation = COMBO_RESET_TEXT
+        state.comboBreakerExpiresAt = GetTimeSafe() + COMBO_BREAKER_VISUAL_DURATION
         PlayComboBreakerSound()
     else
         state.comboCount = state.comboCount + 1
         state.lastExclamation = GetComboText(state.comboCount)
+        state.comboBreakerExpiresAt = nil
     end
 
     state.lastSpellID = spellID
     state.comboDisplayExpiresAt = math.huge
     UpdateComboFrame(spellID, sameSpell)
+end
+
+local function SetComboStyle(styleKey)
+    if COMBO_STYLES[styleKey] == nil then
+        return
+    end
+
+    MonkFighter2DB.comboStyle = styleKey
+    UnlockComboHUDForPreview()
+    ApplyComboTheme()
+    UpdateComboFrame(state.lastSpellID, IsComboBreakerActive())
+    RefreshOptionsPanel()
+end
+
+local function SetComboFontOverride(fontName)
+    MonkFighter2DB.comboFontOverride = fontName
+    UnlockComboHUDForPreview()
+    ApplyComboTheme()
+    UpdateComboFrame(state.lastSpellID, IsComboBreakerActive())
+    RefreshOptionsPanel()
 end
 
 local function RebuildEventSpellIndex()
@@ -531,11 +1056,15 @@ local function RebuildEventSpellIndex()
     end
 end
 
-local function SetFrameLocked(locked)
+SetFrameLocked = function(locked)
     MonkFighter2DB.frameLocked = locked
 
     if comboFrame then
         comboFrame:EnableMouse(not locked)
+    end
+
+    if optionsPanel and optionsPanel.lockButton then
+        optionsPanel.lockButton:SetText(locked and "Unlock Counter" or "Lock Counter")
     end
 
     UpdateFrameVisibility()
@@ -597,17 +1126,31 @@ local function CreateDropdown(parent, width)
     return dropdown
 end
 
-local function RefreshOptionsPanel()
+RefreshOptionsPanel = function()
     if not optionsPanel then
         return
     end
 
+    state.refreshingOptions = true
     optionsPanel.soundsCheckbox:SetChecked(MonkFighter2DB.soundsEnabled)
     optionsPanel.comboCheckbox:SetChecked(MonkFighter2DB.comboEnabled)
     optionsPanel.persistCheckbox:SetChecked(MonkFighter2DB.persistCombo)
     optionsPanel.delaySlider:SetValue(MonkFighter2DB.persistHudHideDelay)
     optionsPanel.delaySlider.Text:SetText(string.format("Hide HUD %.0fs after combat", MonkFighter2DB.persistHudHideDelay))
     optionsPanel.lockButton:SetText(MonkFighter2DB.frameLocked and "Unlock Counter" or "Lock Counter")
+    UIDropDownMenu_SetText(optionsPanel.styleDropdown, (GetComboStyleDefinition().name or "Default"))
+
+    if optionsPanel.fontDropdown then
+        UIDropDownMenu_SetText(optionsPanel.fontDropdown, MonkFighter2DB.comboFontOverride or "Theme Default")
+    end
+
+    if optionsPanel.fontHelp then
+        if GetSharedMedia() then
+            optionsPanel.fontHelp:SetText("LibSharedMedia detected. Choose a registered font override or keep the theme default.")
+        else
+            optionsPanel.fontHelp:SetText("Install any addon that provides LibSharedMedia-3.0 if you want external font overrides. Themes already fall back cleanly to built-in WoW fonts.")
+        end
+    end
 
     local spellIDs = GetSortedSupportedSpellIDs()
     local anchor = optionsPanel.mappingHeader
@@ -675,8 +1218,9 @@ local function RefreshOptionsPanel()
         end
     end
 
-    local contentHeight = math.max(560, 220 + (#spellIDs * 52))
+    local contentHeight = math.max(900, 520 + (#spellIDs * 52))
     optionsPanel.content:SetHeight(contentHeight)
+    state.refreshingOptions = false
 end
 
 local function OpenOptionsPanel()
@@ -695,34 +1239,46 @@ local function CreateOptionsPanel()
     optionsPanel = CreateFrame("Frame", addonName .. "OptionsPanel", UIParent)
     optionsPanel.name = "MonkFighter2"
 
-    local title = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    local scrollFrame = CreateFrame("ScrollFrame", addonName .. "OptionsScrollFrame", optionsPanel, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 16, -16)
+    scrollFrame:SetPoint("BOTTOMRIGHT", optionsPanel, "BOTTOMRIGHT", -30, 16)
+
+    optionsPanel.content = CreateFrame("Frame", nil, scrollFrame)
+    optionsPanel.content:SetSize(620, 900)
+    scrollFrame:SetScrollChild(optionsPanel.content)
+
+    local content = optionsPanel.content
+
+    local title = content:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
     title:SetText("MonkFighter2")
 
-    local subtitle = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    local subtitle = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subtitle:SetWidth(620)
     subtitle:SetJustifyH("LEFT")
     subtitle:SetText("Street Fighter sound replacements plus a combo counter for Windwalker Monk.")
 
-    optionsPanel.soundsCheckbox = CreateCheckbox(optionsPanel, "Enable sounds", "Play mapped sound effects for supported monk abilities.", function(checked)
+    optionsPanel.soundsCheckbox = CreateCheckbox(content, "Enable sounds", "Play mapped sound effects for supported monk abilities.", function(checked)
         MonkFighter2DB.soundsEnabled = checked
     end)
     optionsPanel.soundsCheckbox:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", -2, -18)
 
-    optionsPanel.comboCheckbox = CreateCheckbox(optionsPanel, "Enable combo counter", "Show the combo HUD in combat and track repeated supported abilities.", function(checked)
+    optionsPanel.comboCheckbox = CreateCheckbox(content, "Enable combo counter", "Show the combo HUD in combat and track repeated supported abilities.", function(checked)
         MonkFighter2DB.comboEnabled = checked
         UpdateFrameVisibility()
+        RefreshOptionsPanel()
     end)
     optionsPanel.comboCheckbox:SetPoint("TOPLEFT", optionsPanel.soundsCheckbox, "BOTTOMLEFT", 0, -8)
 
-    optionsPanel.persistCheckbox = CreateCheckbox(optionsPanel, "Persist combo out of combat", "Keep the combo count and display after combat ends until you break the combo or change context.", function(checked)
+    optionsPanel.persistCheckbox = CreateCheckbox(content, "Persist combo out of combat", "Keep the combo count and display after combat ends until you break the combo or change context.", function(checked)
         MonkFighter2DB.persistCombo = checked
         UpdateFrameVisibility()
+        RefreshOptionsPanel()
     end)
     optionsPanel.persistCheckbox:SetPoint("TOPLEFT", optionsPanel.comboCheckbox, "BOTTOMLEFT", 0, -8)
 
-    optionsPanel.delaySlider = CreateFrame("Slider", addonName .. "PersistDelaySlider", optionsPanel, "OptionsSliderTemplate")
+    optionsPanel.delaySlider = CreateFrame("Slider", addonName .. "PersistDelaySlider", content, "OptionsSliderTemplate")
     optionsPanel.delaySlider:SetWidth(220)
     optionsPanel.delaySlider:SetPoint("TOPLEFT", optionsPanel.persistCheckbox, "BOTTOMLEFT", 4, -24)
     optionsPanel.delaySlider:SetMinMaxValues(0, 30)
@@ -734,21 +1290,31 @@ local function CreateOptionsPanel()
         local roundedValue = math.floor(value + 0.5)
         MonkFighter2DB.persistHudHideDelay = roundedValue
         optionsPanel.delaySlider.Text:SetText(string.format("Hide HUD %.0fs after combat", roundedValue))
+        if state.refreshingOptions then
+            return
+        end
         if not InCombatLockdown() and state.comboCount > 0 and MonkFighter2DB.persistCombo then
             state.comboDisplayExpiresAt = GetTimeSafe() + roundedValue
             UpdateFrameVisibility()
         end
-    end)
-
-    optionsPanel.lockButton = CreateFrame("Button", nil, optionsPanel, "UIPanelButtonTemplate")
-    optionsPanel.lockButton:SetSize(120, 24)
-    optionsPanel.lockButton:SetPoint("TOPLEFT", optionsPanel.delaySlider, "BOTTOMLEFT", 0, -18)
-    optionsPanel.lockButton:SetScript("OnClick", function()
-        SetFrameLocked(not MonkFighter2DB.frameLocked)
         RefreshOptionsPanel()
     end)
 
-    optionsPanel.resetButton = CreateFrame("Button", nil, optionsPanel, "UIPanelButtonTemplate")
+    optionsPanel.lockButton = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
+    optionsPanel.lockButton:SetSize(120, 24)
+    optionsPanel.lockButton:SetPoint("TOPLEFT", optionsPanel.delaySlider, "BOTTOMLEFT", 0, -18)
+    optionsPanel.lockButton:SetScript("OnClick", function()
+        if MonkFighter2DB.frameLocked then
+            UnlockComboHUDForPreview()
+            UpdateComboFrame(state.lastSpellID, false)
+        else
+            ClearComboPreview()
+            SetFrameLocked(true)
+        end
+        RefreshOptionsPanel()
+    end)
+
+    optionsPanel.resetButton = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     optionsPanel.resetButton:SetSize(110, 24)
     optionsPanel.resetButton:SetPoint("LEFT", optionsPanel.lockButton, "RIGHT", 8, 0)
     optionsPanel.resetButton:SetText("Reset Position")
@@ -756,22 +1322,85 @@ local function CreateOptionsPanel()
         ResetFramePosition()
     end)
 
-    local helpText = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    helpText:SetPoint("TOPLEFT", optionsPanel.lockButton, "BOTTOMLEFT", 0, -10)
+    local styleLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    styleLabel:SetPoint("TOPLEFT", optionsPanel.lockButton, "BOTTOMLEFT", 0, -18)
+    styleLabel:SetText("Combo HUD Style")
+
+    optionsPanel.styleDropdown = CreateDropdown(content, 220)
+    optionsPanel.styleDropdown:SetPoint("TOPLEFT", styleLabel, "BOTTOMLEFT", -12, -4)
+    UIDropDownMenu_Initialize(optionsPanel.styleDropdown, function(_, level)
+        if level ~= 1 then
+            return
+        end
+
+        for _, styleKey in ipairs(GetOrderedComboStyleKeys()) do
+            local style = COMBO_STYLES[styleKey]
+            local info = UIDropDownMenu_CreateInfo()
+            info.text = style.name
+            info.checked = MonkFighter2DB.comboStyle == styleKey
+            info.func = function()
+                SetComboStyle(styleKey)
+                UIDropDownMenu_SetText(optionsPanel.styleDropdown, style.name)
+            end
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end)
+
+    local fontLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    fontLabel:SetPoint("TOPLEFT", optionsPanel.styleDropdown, "BOTTOMLEFT", 16, -12)
+    fontLabel:SetText("Font Override")
+
+    optionsPanel.fontDropdown = CreateDropdown(content, 220)
+    optionsPanel.fontDropdown:SetPoint("TOPLEFT", fontLabel, "BOTTOMLEFT", -12, -4)
+    UIDropDownMenu_Initialize(optionsPanel.fontDropdown, function(_, level)
+        if level ~= 1 then
+            return
+        end
+
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = "Theme Default"
+        info.checked = MonkFighter2DB.comboFontOverride == nil
+        info.func = function()
+            SetComboFontOverride(nil)
+            UIDropDownMenu_SetText(optionsPanel.fontDropdown, "Theme Default")
+        end
+        UIDropDownMenu_AddButton(info, level)
+
+        local fontNames = GetSharedMediaFontNames()
+        if not fontNames then
+            info = UIDropDownMenu_CreateInfo()
+            info.text = "LibSharedMedia not available"
+            info.isTitle = true
+            info.notCheckable = true
+            UIDropDownMenu_AddButton(info, level)
+            return
+        end
+
+        for _, fontName in ipairs(fontNames) do
+            info = UIDropDownMenu_CreateInfo()
+            info.text = fontName
+            info.checked = MonkFighter2DB.comboFontOverride == fontName
+            info.func = function()
+                SetComboFontOverride(fontName)
+                UIDropDownMenu_SetText(optionsPanel.fontDropdown, fontName)
+            end
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end)
+
+    optionsPanel.fontHelp = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    optionsPanel.fontHelp:SetPoint("TOPLEFT", optionsPanel.fontDropdown, "BOTTOMLEFT", 16, -4)
+    optionsPanel.fontHelp:SetWidth(620)
+    optionsPanel.fontHelp:SetJustifyH("LEFT")
+
+    local helpText = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    helpText:SetPoint("TOPLEFT", optionsPanel.fontHelp, "BOTTOMLEFT", -16, -12)
     helpText:SetWidth(620)
     helpText:SetJustifyH("LEFT")
     helpText:SetText("Choose a sound for any supported Windwalker ability variant, even if it is not currently talented. This keeps mutually exclusive nodes and replacement spells configurable ahead of time.")
 
-    local scrollFrame = CreateFrame("ScrollFrame", addonName .. "OptionsScrollFrame", optionsPanel, "UIPanelScrollFrameTemplate")
-    scrollFrame:SetPoint("TOPLEFT", helpText, "BOTTOMLEFT", 0, -14)
-    scrollFrame:SetPoint("BOTTOMRIGHT", optionsPanel, "BOTTOMRIGHT", -30, 16)
-
-    optionsPanel.content = CreateFrame("Frame", nil, scrollFrame)
-    optionsPanel.content:SetSize(620, 480)
-    scrollFrame:SetScrollChild(optionsPanel.content)
-
     optionsPanel.mappingHeader = optionsPanel.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    optionsPanel.mappingHeader:SetPoint("TOPLEFT", 0, 0)
+    optionsPanel.mappingHeader:SetPoint("TOPLEFT", helpText, "BOTTOMLEFT", 0, -18)
     optionsPanel.mappingHeader:SetText("Ability Sound Mapping")
 
     for index = 1, 24 do
@@ -815,7 +1444,7 @@ end
 
 local function CreateComboFrame()
     comboFrame = CreateFrame("Frame", "MonkFighter2ComboFrame", UIParent)
-    comboFrame:SetSize(250, 96)
+    comboFrame:SetSize(268, 92)
     comboFrame:SetMovable(true)
     comboFrame:RegisterForDrag("LeftButton")
     comboFrame:SetClampedToScreen(true)
@@ -831,53 +1460,81 @@ local function CreateComboFrame()
 
     comboFrame.bg = comboFrame:CreateTexture(nil, "BACKGROUND")
     comboFrame.bg:SetAllPoints()
-    comboFrame.bg:SetColorTexture(0.06, 0.04, 0.02, 0.68)
+    comboFrame.bg:SetTexture(WHITE_TEXTURE)
 
     comboFrame.edgeTop = comboFrame:CreateTexture(nil, "BORDER")
     comboFrame.edgeTop:SetPoint("TOPLEFT", comboFrame, "TOPLEFT", 0, 0)
     comboFrame.edgeTop:SetPoint("TOPRIGHT", comboFrame, "TOPRIGHT", 0, 0)
     comboFrame.edgeTop:SetHeight(3)
-    comboFrame.edgeTop:SetColorTexture(0.96, 0.71, 0.15, 0.95)
+    comboFrame.edgeTop:SetTexture(WHITE_TEXTURE)
 
     comboFrame.icon = comboFrame:CreateTexture(nil, "ARTWORK")
-    comboFrame.icon:SetSize(52, 52)
-    comboFrame.icon:SetPoint("LEFT", comboFrame, "LEFT", 12, 0)
+    comboFrame.icon:SetSize(48, 48)
+    comboFrame.icon:SetPoint("LEFT", comboFrame, "LEFT", 8, 0)
     comboFrame.icon:SetTexture(136097)
 
     comboFrame.iconBorder = comboFrame:CreateTexture(nil, "OVERLAY")
     comboFrame.iconBorder:SetPoint("TOPLEFT", comboFrame.icon, "TOPLEFT", -2, 2)
     comboFrame.iconBorder:SetPoint("BOTTOMRIGHT", comboFrame.icon, "BOTTOMRIGHT", 2, -2)
-    comboFrame.iconBorder:SetColorTexture(0.94, 0.74, 0.16, 0.16)
+    comboFrame.iconBorder:SetTexture(WHITE_TEXTURE)
 
     comboFrame.count = comboFrame:CreateFontString(nil, "OVERLAY")
     comboFrame.count:SetPoint("LEFT", comboFrame.icon, "RIGHT", 18, 8)
-    comboFrame.count:SetFont(FONT_PATH, 34, "OUTLINE")
     comboFrame.count:SetJustifyH("LEFT")
-    comboFrame.count:SetTextColor(1, 0.92, 0.42)
+    comboFrame.count:SetFont(FONT_PATH, 34, "OUTLINE")
     comboFrame.count:SetText("0")
 
     comboFrame.label = comboFrame:CreateFontString(nil, "OVERLAY")
     comboFrame.label:SetPoint("BOTTOMLEFT", comboFrame.count, "TOPLEFT", 0, -2)
     comboFrame.label:SetFont(FONT_PATH, 12, "OUTLINE")
-    comboFrame.label:SetTextColor(1, 0.78, 0.24)
     comboFrame.label:SetText("COMBO")
+
+    comboFrame.suffix = comboFrame:CreateFontString(nil, "OVERLAY")
+    comboFrame.suffix:SetFont(FONT_PATH, 12, "OUTLINE")
+    comboFrame.suffix:SetText("")
 
     comboFrame.exclamation = comboFrame:CreateFontString(nil, "OVERLAY")
     comboFrame.exclamation:SetPoint("TOPLEFT", comboFrame.count, "BOTTOMLEFT", 0, -2)
     comboFrame.exclamation:SetPoint("RIGHT", comboFrame, "RIGHT", -12, 0)
-    comboFrame.exclamation:SetFont(FONT_PATH, 16, "OUTLINE")
     comboFrame.exclamation:SetJustifyH("LEFT")
-    comboFrame.exclamation:SetTextColor(1, 0.96, 0.72)
+    comboFrame.exclamation:SetFont(FONT_PATH, 16, "OUTLINE")
     comboFrame.exclamation:SetText("")
+
+    comboFrame.breakerSlashA = comboFrame:CreateTexture(nil, "OVERLAY")
+    comboFrame.breakerSlashA:SetTexture(WHITE_TEXTURE)
+    comboFrame.breakerSlashA:SetSize(180, 8)
+    comboFrame.breakerSlashA:SetPoint("CENTER", comboFrame, "CENTER", 0, -2)
+    SetTextureRotationSafe(comboFrame.breakerSlashA, math.rad(-18))
+    comboFrame.breakerSlashA:Hide()
+
+    comboFrame.breakerSlashB = comboFrame:CreateTexture(nil, "OVERLAY")
+    comboFrame.breakerSlashB:SetTexture(WHITE_TEXTURE)
+    comboFrame.breakerSlashB:SetSize(140, 4)
+    comboFrame.breakerSlashB:SetPoint("CENTER", comboFrame, "CENTER", 14, 8)
+    SetTextureRotationSafe(comboFrame.breakerSlashB, math.rad(-18))
+    comboFrame.breakerSlashB:Hide()
+
+    comboFrame.breakerText = comboFrame:CreateFontString(nil, "OVERLAY")
+    comboFrame.breakerText:SetPoint("CENTER", comboFrame, "CENTER", 0, 0)
+    comboFrame.breakerText:SetFont(FONT_PATH, 20, "OUTLINE")
+    comboFrame.breakerText:SetText("COMBO BREAKER")
+    comboFrame.breakerText:Hide()
 
     comboFrame.moveHint = comboFrame:CreateFontString(nil, "OVERLAY")
     comboFrame.moveHint:SetPoint("TOP", comboFrame, "TOP", 0, -10)
     comboFrame.moveHint:SetFont(FONT_PATH, 11, "OUTLINE")
-    comboFrame.moveHint:SetTextColor(0.96, 0.71, 0.15)
     comboFrame.moveHint:SetText("Drag to move")
     comboFrame.moveHint:Hide()
 
     comboFrame:SetScript("OnUpdate", function()
+        if state.comboBreakerExpiresAt and GetTimeSafe() >= state.comboBreakerExpiresAt then
+            state.comboBreakerExpiresAt = nil
+            comboFrame.breakerText:Hide()
+            comboFrame.breakerSlashA:Hide()
+            comboFrame.breakerSlashB:Hide()
+            UpdateComboFrame(state.lastSpellID, false)
+        end
+
         if not state.isWindwalker or not MonkFighter2DB.comboEnabled or InCombatLockdown() then
             return
         end
@@ -888,6 +1545,7 @@ local function CreateComboFrame()
     end)
 
     ApplyFramePosition()
+    ApplyComboTheme()
     comboFrame:Hide()
 end
 
@@ -935,10 +1593,13 @@ ADDON:SetScript("OnEvent", function(_, event, ...)
         end
 
         EnsureDB()
+        MonkFighter2DB.frameLocked = true
         RebuildEventSpellIndex()
         CreateComboFrame()
         CreateOptionsPanel()
-        SetFrameLocked(MonkFighter2DB.frameLocked)
+        ResetCombo()
+        SetFrameLocked(true)
+        RefreshOptionsPanel()
         RefreshSpecState()
         return
     end

@@ -1,0 +1,7 @@
+Unreleased
+Changes since initial commit:
+
+- added zip archive
+- update toc
+- Remove legacy source directories
+- Initial release

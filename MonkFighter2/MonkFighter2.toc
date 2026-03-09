@@ -2,7 +2,9 @@
 ## Title: MonkFighter2
 ## Notes: Windwalker Monk Street Fighter SFX and combo counter.
 ## Author: Popidge (EU Silvermoon) + Codex
-## Version: 1.0.0
+## Version: @project-version@
+## IconTexture: Interface\Icons\Spell_Monk_Windwalker_Spec
 ## SavedVariables: MonkFighter2DB
+## OptionalDeps: LibSharedMedia-3.0
 
 MonkFighter2.lua

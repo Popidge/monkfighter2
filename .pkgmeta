@@ -1,0 +1,7 @@
+package-as: MonkFighter2
+
+manual-changelog: CHANGELOG.txt
+
+ignore:
+  - MonkFighter2.zip
+  - README.md
