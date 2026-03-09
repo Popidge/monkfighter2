@@ -1,9 +1,4 @@
-Release: v1.1.0
-Changes since initial commit:
+Release: v1.1.1
+Changes since v1.1.0:
 
-- Ignore Python cache files
-- Add combo HUD themes and release workflow
-- added zip archive
-- update toc
-- Remove legacy source directories
-- Initial release
+- Flatten addon package layout for CurseForge
