@@ -5,6 +5,7 @@
 - CurseForge packaging is triggered by a GitHub webhook that targets this addon's CurseForge project.
 - The CurseForge project is configured to package tagged commits only.
 - `.pkgmeta` controls packaging behavior, including the manual changelog file used for release notes.
+- GitHub releases are built from tags through `.github/workflows/github-release.yml`, and the workflow should always check out the tag being released, not whatever `main` happens to be later.
 
 ## Release Tag Convention
 
