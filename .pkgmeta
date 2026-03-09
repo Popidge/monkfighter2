@@ -8,3 +8,4 @@ ignore:
   - AGENTS.md
   - CHANGELOG.txt
   - scripts
+  - .github
