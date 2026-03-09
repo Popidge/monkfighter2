@@ -9,7 +9,7 @@ Standalone World of Warcraft addon for Windwalker Monk that:
 
 ## Install
 
-Copy the `MonkFighter2/` folder into your WoW addons directory:
+Copy this addon as the `MonkFighter2/` folder into your WoW addons directory:
 
 `World of Warcraft/_retail_/Interface/AddOns/MonkFighter2`
 
@@ -37,6 +37,6 @@ Then reload the UI or restart the game.
 
 ## Notes
 
-- The addon package is the `MonkFighter2/` directory in this repo.
+- The repository root is now the addon package root for CurseForge packaging.
 - Sound support and Combo Strikes tracking are maintained separately on purpose.
 - Some older Windwalker-era spells remain supported for sound mapping even if they are not part of the current Combo Strikes aura family.
