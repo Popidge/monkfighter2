@@ -1,4 +1,8 @@
-Release: v1.1.1
-Changes since v1.1.0:
+Release: v1.1.2
+Changes since v1.1.1:
 
-- Flatten addon package layout for CurseForge
+- Thanks to nugget69247 on CurseForge for feedback on combo counter scaling.
+- feat: add combo counter scale slider
+- Fix GitHub release workflow tag checkout
+- chore - repo tidy
+- Automate GitHub release assets and tighten packaging ignores
