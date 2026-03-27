@@ -334,6 +334,7 @@ local defaults = {
     comboEnabled = true,
     persistCombo = true,
     persistHudHideDelay = 10,
+    comboScale = 100,
     frameLocked = true,
     framePoint = DEFAULT_FRAME_POINT,
     soundMappings = {},
@@ -536,6 +537,8 @@ local function EnsureDB()
     if MonkFighter2DB.comboFontOverride ~= nil and MonkFighter2DB.comboFontOverride == "" then
         MonkFighter2DB.comboFontOverride = nil
     end
+
+    MonkFighter2DB.comboScale = math.min(200, math.max(1, math.floor((tonumber(MonkFighter2DB.comboScale) or defaults.comboScale) + 0.5)))
 end
 
 local function GetComboStyleDefinition()
@@ -600,6 +603,15 @@ end
 
 local function GetComboFontPath()
     return GetSharedMediaFontPath(MonkFighter2DB.comboFontOverride) or FONT_PATH
+end
+
+local function GetComboScalePercent()
+    local scalePercent = tonumber(MonkFighter2DB.comboScale) or defaults.comboScale
+    return math.min(200, math.max(1, math.floor(scalePercent + 0.5)))
+end
+
+local function GetComboScaleMultiplier()
+    return GetComboScalePercent() / 100
 end
 
 local function ApplyFont(region, size, flags, shadowColor, shadowOffset)
@@ -819,6 +831,14 @@ local function ApplyFramePosition()
         framePoint.x or DEFAULT_FRAME_POINT.x,
         framePoint.y or DEFAULT_FRAME_POINT.y
     )
+end
+
+local function ApplyComboScale()
+    if not comboFrame then
+        return
+    end
+
+    comboFrame:SetScale(GetComboScaleMultiplier())
 end
 
 local function UpdateFrameVisibility()
@@ -1045,6 +1065,14 @@ local function SetComboFontOverride(fontName)
     RefreshOptionsPanel()
 end
 
+local function SetComboScalePercent(scalePercent)
+    MonkFighter2DB.comboScale = math.min(200, math.max(1, math.floor((tonumber(scalePercent) or defaults.comboScale) + 0.5)))
+    UnlockComboHUDForPreview()
+    ApplyComboScale()
+    UpdateComboFrame(state.lastSpellID, IsComboBreakerActive())
+    RefreshOptionsPanel()
+end
+
 local function RebuildEventSpellIndex()
     state.eventSpellIndex = {}
 
@@ -1137,6 +1165,10 @@ RefreshOptionsPanel = function()
     optionsPanel.persistCheckbox:SetChecked(MonkFighter2DB.persistCombo)
     optionsPanel.delaySlider:SetValue(MonkFighter2DB.persistHudHideDelay)
     optionsPanel.delaySlider.Text:SetText(string.format("Hide HUD %.0fs after combat", MonkFighter2DB.persistHudHideDelay))
+    if optionsPanel.scaleSlider then
+        optionsPanel.scaleSlider:SetValue(GetComboScalePercent())
+        optionsPanel.scaleSlider.Text:SetText(string.format("Combo HUD scale %d%%", GetComboScalePercent()))
+    end
     optionsPanel.lockButton:SetText(MonkFighter2DB.frameLocked and "Unlock Counter" or "Lock Counter")
     UIDropDownMenu_SetText(optionsPanel.styleDropdown, (GetComboStyleDefinition().name or "Default"))
 
@@ -1218,7 +1250,7 @@ RefreshOptionsPanel = function()
         end
     end
 
-    local contentHeight = math.max(900, 520 + (#spellIDs * 52))
+    local contentHeight = math.max(900, 560 + (#spellIDs * 52))
     optionsPanel.content:SetHeight(contentHeight)
     state.refreshingOptions = false
 end
@@ -1300,9 +1332,26 @@ local function CreateOptionsPanel()
         RefreshOptionsPanel()
     end)
 
+    optionsPanel.scaleSlider = CreateFrame("Slider", addonName .. "ComboScaleSlider", content, "OptionsSliderTemplate")
+    optionsPanel.scaleSlider:SetWidth(220)
+    optionsPanel.scaleSlider:SetPoint("TOPLEFT", optionsPanel.delaySlider, "BOTTOMLEFT", 0, -38)
+    optionsPanel.scaleSlider:SetMinMaxValues(1, 200)
+    optionsPanel.scaleSlider:SetValueStep(1)
+    optionsPanel.scaleSlider:SetObeyStepOnDrag(true)
+    optionsPanel.scaleSlider.Low:SetText("1%")
+    optionsPanel.scaleSlider.High:SetText("200%")
+    optionsPanel.scaleSlider:SetScript("OnValueChanged", function(_, value)
+        local roundedValue = math.min(200, math.max(1, math.floor(value + 0.5)))
+        optionsPanel.scaleSlider.Text:SetText(string.format("Combo HUD scale %d%%", roundedValue))
+        if state.refreshingOptions then
+            return
+        end
+        SetComboScalePercent(roundedValue)
+    end)
+
     optionsPanel.lockButton = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     optionsPanel.lockButton:SetSize(120, 24)
-    optionsPanel.lockButton:SetPoint("TOPLEFT", optionsPanel.delaySlider, "BOTTOMLEFT", 0, -18)
+    optionsPanel.lockButton:SetPoint("TOPLEFT", optionsPanel.scaleSlider, "BOTTOMLEFT", 0, -18)
     optionsPanel.lockButton:SetScript("OnClick", function()
         if MonkFighter2DB.frameLocked then
             UnlockComboHUDForPreview()
@@ -1544,6 +1593,7 @@ local function CreateComboFrame()
         end
     end)
 
+    ApplyComboScale()
     ApplyFramePosition()
     ApplyComboTheme()
     comboFrame:Hide()
