@@ -1,8 +1,4 @@
-Release: v1.1.2
-Changes since v1.1.1:
+Release: v1.1.3
+Changes since v1.1.2:
 
-- Thanks to nugget69247 on CurseForge for feedback on combo counter scaling.
-- feat: add combo counter scale slider
-- Fix GitHub release workflow tag checkout
-- chore - repo tidy
-- Automate GitHub release assets and tighten packaging ignores
+- toc: bump interface to 12.0.5
