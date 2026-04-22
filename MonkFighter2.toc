@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120005
 ## Title: MonkFighter2
 ## Notes: Windwalker Monk Street Fighter SFX and combo counter.
 ## Author: Popidge (EU Silvermoon) + Codex
